@@ -1,0 +1,88 @@
+#include {input_file}
+
+#include <concepts>
+#include <format>
+#include <string>
+#include <string_view>
+#include <type_traits>
+
+template <typename T> constexpr std::string_view stringof(const T &) noexcept {{
+  return "";
+}}
+
+{strof_l}
+
+template <typename T>
+constexpr std::wstring_view wstringof(const T &) noexcept {{
+  return L"";
+}}
+
+{wstrof_l}
+
+template <typename CharT> struct _stringof_;
+
+template <> struct _stringof_<char> {{
+  template <typename T>
+  static constexpr std::string_view func(const T &v) noexcept {{
+    return stringof(v);
+  }}
+}};
+
+template <> struct _stringof_<wchar_t> {{
+  template <typename T>
+  static constexpr std::wstring_view func(const T &v) noexcept {{
+    return wstringof(v);
+  }}
+}};
+
+template <typename CharT> struct i_literal;
+
+template <> struct i_literal<char> {{
+  static constexpr char value = 'i';
+}};
+
+template <> struct i_literal<wchar_t> {{
+  static constexpr wchar_t value = L'i';
+}};
+
+template <typename T, typename... Ts>
+concept OneOf = (std::same_as<T, Ts> || ...);
+
+template <typename E, typename CharT>
+requires {fmt_requirement}
+struct std::formatter<E, CharT> {{
+public:
+  using _tstring = std::basic_string<CharT>;
+  using _int_t = std::underlying_type_t<E>;
+
+private:
+  std::formatter<_tstring, CharT> _str_fmt{{}};
+  std::formatter<_int_t, CharT> _int_fmt{{}};
+
+  bool _i_flag = false;
+
+public:
+  template <typename ParseCtx> constexpr auto parse(ParseCtx &ctx) {{
+    auto it = ctx.begin();
+    auto end = ctx.end();
+    if (it != end && *it == i_literal<CharT>::value) {{
+      _i_flag = true;
+      ++it;
+      ctx.advance_to(it);
+      return _int_fmt.parse(ctx);
+    }} else {{
+      _i_flag = false;
+      return _str_fmt.parse(ctx);
+    }}
+  }}
+
+  template <typename FormatCtx>
+  constexpr auto format(const E &ev, FormatCtx &ctx) const {{
+    if (_i_flag) {{
+      return _int_fmt.format(static_cast<_int_t>(ev), ctx);
+    }} else {{
+      return _str_fmt.format(
+          std::basic_string<CharT>(_stringof_<CharT>::func(ev)), ctx);
+    }}
+  }}
+}};
