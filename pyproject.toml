@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "regen"
+version = "0.0.1"
+description = "Generate boilerplate for smarter c++ enums"
+authors = [
+  { name = "MBSurihd", email = "mbsurihd@gmail.com" },
+]
+requires-python = ">=3.12"
+dependencies = [
+  "tree-sitter>=0.25.2",
+  "tree-sitter-cpp>=0.23.4",
+]
+
+[project.scripts]
+regen = "regen.regen:main"
+
+[tool.setuptools.package-data]
+regen = ["templates/*", "tree-sitter-cpp/**"]

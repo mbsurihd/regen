@@ -1,7 +1,3 @@
-.build/
-.cache/
-compile_commands.json
-*.hpp
-*.cpp
-.venv
-CMakeLists.txt
+.venv/
+dist/
+regen.egg-info/

@@ -1,11 +1,16 @@
 from dataclasses import dataclass
 import argparse as AP
-from pathlib import Path
+from importlib.resources import files
 
 import tree_sitter as TS
 import tree_sitter_cpp as TSCPP
 
 CPP_LANG = TS.Language(TSCPP.language())
+
+
+PKG_ROOT = files("regen")
+TEMPLATES_DIR = PKG_ROOT / "templates"
+QUERIES_DIR = PKG_ROOT / "tree-sitter-cpp/queries"
 
 
 @dataclass
@@ -38,7 +43,7 @@ def get_enum_value_name_nodes(body_node: TS.Node):
 
 def extract_enums(root: TS.Node):
   query_str: str = ""
-  with open("./tree-sitter-cpp/queries/trigger_enums.scm", "r") as file:
+  with (QUERIES_DIR / "trigger_enums.scm").open("r") as file:
     query_str = file.read()
 
   query = TS.Query(CPP_LANG, query_str)
@@ -127,11 +132,6 @@ def build_fmt_requirement(enums: list[CppEnum]):
   return FMT_REQUIREMENT.format(q_type_l=q_type_l)
 
 
-SCRIPT_HOME = Path(__file__).parent
-TEMPLATES_DIR = SCRIPT_HOME / "templates"
-QUERIES_DIR = SCRIPT_HOME / "tree-sitter-cpp/queries"
-
-
 def read_output_file_name(input_file: str):
   top_line: str = ""
   with open(input_file, "r") as file:
@@ -152,7 +152,7 @@ def init_cmd(input_file: str):
     print("<input_file> must have at the top `// @regen output <output_file>`")
     return -1
   init_templ: str = ""
-  with open(TEMPLATES_DIR / "init.hpp.templ", "r") as file:
+  with (TEMPLATES_DIR / "init.hpp.templ").open("r") as file:
     init_templ = file.read()
   with open(output_file, "w") as file:
     _ = file.write(init_templ.format(input_file=f'"{input_file}"'))
@@ -181,7 +181,7 @@ def gen_cmd(input_file: str):
   wstrof_l = "\n\n".join(wstrofs)
 
   gen_templ: str = ""
-  with open(TEMPLATES_DIR / "gen.hpp.templ", "r") as file:
+  with (TEMPLATES_DIR / "gen.hpp.templ").open("r") as file:
     gen_templ = file.read()
 
   with open(output_file, "w") as file:
