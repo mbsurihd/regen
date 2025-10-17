@@ -86,14 +86,14 @@ constexpr std::string_view stringof(const {q_type}& v) noexcept {{
 """
 STROF_INNER = '    case {q_type}::{v_name}: return "{uq_type}::{v_name}";'
 WSTROF_OUTER = """\
-constexpr std::wstring_view stringof(const {q_type}& v) noexcept {{
+constexpr std::wstring_view wstringof(const {q_type}& v) noexcept {{
   switch(v) {{
 {case_l}
   }};
 }}
 """
 WSTROF_INNER = '    case {q_type}::{v_name}: return L"{uq_type}::{v_name}";'
-FMT_REQUIREMENT = "OneOf<T, {q_type_l}>"
+FMT_REQUIREMENT = "OneOf<E, {q_type_l}>"
 
 
 def build_strof(enum: CppEnum):
