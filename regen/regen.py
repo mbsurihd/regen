@@ -86,7 +86,7 @@ constexpr std::string_view stringof(const {q_type}& v) noexcept {{
 """
 STROF_INNER = '    case {q_type}::{v_name}: return "{uq_type}::{v_name}";'
 WSTROF_OUTER = """\
-constexpr std::wstring_view stringof(const {q_type}& v) noexcept {{
+constexpr std::wstring_view wstringof(const {q_type}& v) noexcept {{
   switch(v) {{
 {case_l}
   }};
